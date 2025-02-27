@@ -10,11 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
+        android:layout_marginTop="10dp"
         android:background="@android:color/darker_gray" />
 
     <Button
         android:id="@+id/btnSeleccionarImagen"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
+        android:layout_gravity="center"
         android:layout_height="wrap_content"
         android:text="Seleccionar Imagen" />
 
@@ -43,7 +45,8 @@
 
     <Button
         android:id="@+id/btnGuardar"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Guardar Inmueble" />
 </LinearLayout>

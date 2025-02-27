@@ -12,7 +12,7 @@ public class Inmueble {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.precio = precio;
-        this.imagenUri = null;
+        this.imagenUri = imagenUri;
     }
 
     public String getNombre() {

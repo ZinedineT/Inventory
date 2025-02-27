@@ -18,14 +18,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="80dp"
         android:layout_marginBottom="40dp"/>
 
     <!-- Contenedor de las opciones -->
     <LinearLayout
         android:id="@+id/container"
-        android:layout_width="342dp"
-        android:layout_height="339dp"
+        android:layout_width="337dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
         android:orientation="vertical"
@@ -46,16 +46,15 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
                     android:src="@drawable/gerencia" />
 
                 <Button
                     android:id="@+id/btnGerencia"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GERENCIA"
-                    />
+                    android:text="GERENCIA" />
             </LinearLayout>
 
             <LinearLayout
@@ -65,8 +64,8 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
                     android:src="@drawable/administracion" />
 
                 <Button
@@ -91,8 +90,8 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
                     android:src="@drawable/tecnologia" />
 
                 <Button
@@ -109,8 +108,8 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
                     android:src="@drawable/marketing" />
 
                 <Button
