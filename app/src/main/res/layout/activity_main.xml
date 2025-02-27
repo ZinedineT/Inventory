@@ -51,9 +51,11 @@
                     android:src="@drawable/gerencia" />
 
                 <Button
+                    android:id="@+id/btnGerencia"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GERENCIA" />
+                    android:text="GERENCIA"
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -68,6 +70,7 @@
                     android:src="@drawable/administracion" />
 
                 <Button
+                    android:id="@+id/btnAdministracion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ADMINISTRACIÓN" />
@@ -93,6 +96,7 @@
                     android:src="@drawable/tecnologia" />
 
                 <Button
+                    android:id="@+id/btnTecnologia"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TECNOLOGÍA" />
@@ -110,6 +114,7 @@
                     android:src="@drawable/marketing" />
 
                 <Button
+                    android:id="@+id/btnMarketing"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="MARKETING" />
