@@ -13,7 +13,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-
+        <!-- Imagen del inmueble -->
+        <ImageView
+            android:id="@+id/imgInmueble"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background"
+            android:layout_marginBottom="8dp"/>
         <TextView
             android:id="@+id/txtNombre"
             android:layout_width="match_parent"
@@ -24,10 +31,10 @@
             android:textColor="#000000" />
 
         <TextView
-            android:id="@+id/txtDireccion"
+            android:id="@+id/txtCantidad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dirección del inmueble"
+            android:text="Cantidad"
             android:textSize="14sp"
             android:textColor="#666666"
             android:layout_marginTop="4dp"/>

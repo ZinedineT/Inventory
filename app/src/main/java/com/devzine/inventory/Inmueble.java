@@ -1,39 +1,33 @@
 package com.devzine.inventory;
 
+import android.net.Uri;
+
 public class Inmueble {
     private String nombre;
-    private String direccion;
+    private int cantidad;
     private double precio;
+    private Uri imagenUri;
 
-    public Inmueble(String nombre, String direccion, double precio) {
+    public Inmueble(String nombre, int cantidad, double precio, Uri imagenUri) {
         this.nombre = nombre;
-        this.direccion = direccion;
+        this.cantidad = cantidad;
         this.precio = precio;
+        this.imagenUri = null;
     }
 
-    // Getters y Setters
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public int getCantidad() {
+        return cantidad;
     }
 
     public double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public Uri getImagenUri() {
+        return imagenUri;
     }
 }
-
