@@ -40,7 +40,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         // Botón para seleccionar una imagen desde la galería
         btnSeleccionarImagen.setOnClickListener(v -> abrirGaleria());
         // Botón para guardar el inmueble
-        btnGuardar.setOnClickListener(v -> guardarInmueble(area));
+        btnGuardar.setOnClickListener(v -> guardarInmueble());
     }
 
     private void abrirGaleria() {
@@ -51,18 +51,24 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            imageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                imgInmueble.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                getContentResolver().takePersistableUriPermission(
+                        selectedImageUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                );
+
+                imageUri = selectedImageUri; // Guardar la URI persistente
+                imgInmueble.setImageURI(imageUri);
             }
         }
     }
 
-    private void guardarInmueble(String areaSeleccionada) {
+    private void guardarInmueble() {
+        if (area == null) {
+            area = "Sin Área"; // 🔹 Si el área es null, asigna un valor por defecto
+        }
         String nombre = edtNombre.getText().toString();
         String cantidadStr = edtCantidad.getText().toString();
         String precioStr = edtPrecio.getText().toString();
@@ -79,8 +85,8 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         intent.putExtra("nombre", nombre);
         intent.putExtra("cantidad", cantidad);
         intent.putExtra("precio", precio);
-        intent.putExtra("imagenUri", imageUri.toString());
-        intent.putExtra("area", area); // AGREGAMOS EL ÁREA
+        intent.putExtra("imagenUri", imageUri.toString()); // 🔹 Guardar URI como String
+        intent.putExtra("area", area);
 
         setResult(Activity.RESULT_OK, intent);
         finish();
