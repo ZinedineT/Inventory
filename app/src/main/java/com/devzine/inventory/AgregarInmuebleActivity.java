@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,6 +20,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
     private ImageView imgInmueble;
     private EditText edtNombre, edtCantidad, edtPrecio;
     private Uri imageUri;
+    private String area;
     private Button btnSeleccionarImagen, btnGuardar;
 
     @Override
@@ -35,11 +35,12 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen);
         btnGuardar = findViewById(R.id.btnGuardar);
 
+        // ✅ ALMACENAR EL ÁREA SELECCIONADA
+        area = getIntent().getStringExtra("AREA");
         // Botón para seleccionar una imagen desde la galería
         btnSeleccionarImagen.setOnClickListener(v -> abrirGaleria());
-
         // Botón para guardar el inmueble
-        btnGuardar.setOnClickListener(v -> guardarInmueble());
+        btnGuardar.setOnClickListener(v -> guardarInmueble(area));
     }
 
     private void abrirGaleria() {
@@ -61,7 +62,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         }
     }
 
-    private void guardarInmueble() {
+    private void guardarInmueble(String areaSeleccionada) {
         String nombre = edtNombre.getText().toString();
         String cantidadStr = edtCantidad.getText().toString();
         String precioStr = edtPrecio.getText().toString();
@@ -79,6 +80,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         intent.putExtra("cantidad", cantidad);
         intent.putExtra("precio", precio);
         intent.putExtra("imagenUri", imageUri.toString());
+        intent.putExtra("area", area); // AGREGAMOS EL ÁREA
 
         setResult(Activity.RESULT_OK, intent);
         finish();

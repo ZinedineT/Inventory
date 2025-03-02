@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import android.widget.TextView;
+
 
 public class ListaInmueblesActivity extends AppCompatActivity {
 
@@ -30,10 +32,11 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                     int cantidad = data.getIntExtra("cantidad", 0);
                     double precio = data.getDoubleExtra("precio", 0.0);
                     String imagenUriStr = data.getStringExtra("imagenUri");
+                    String area = data.getStringExtra("area");
                     Uri imagenUri = (imagenUriStr != null) ? Uri.parse(imagenUriStr) : null;
 
                     // Agregar el nuevo inmueble a la lista
-                    Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUri);
+                    Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUri, area);
                     listaInmuebles.add(nuevoInmueble);
                     adapter.notifyItemInserted(listaInmuebles.size() - 1);
                 }
@@ -48,10 +51,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         btnAgregarInmueble = findViewById(R.id.btnAgregarInmueble); // Vincular el botón
 
+        // Recibir el área seleccionada desde MainActivity
+        String areaSeleccionada = getIntent().getStringExtra("AREA");
+        // Mostrar el área en el título
+        TextView txtTitulo = findViewById(R.id.txtTitulo);
+        txtTitulo.setText("Inmuebles en " + areaSeleccionada);
         // Datos de ejemplo
         listaInmuebles = new ArrayList<>();
-        listaInmuebles.add(new Inmueble("Casa en Lima", 1, 250000, null));
-        listaInmuebles.add(new Inmueble("Departamento en Arequipa", 1, 180000, null));
 
         // Configurar el adaptador
         adapter = new InmuebleAdapter(listaInmuebles, position -> {
@@ -65,7 +71,30 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         // Configurar botón para agregar inmueble
         btnAgregarInmueble.setOnClickListener(v -> {
             Intent intent = new Intent(ListaInmueblesActivity.this, AgregarInmuebleActivity.class);
-            agregarInmuebleLauncher.launch(intent); // Usar ActivityResultLauncher
+            intent.putExtra("AREA", areaSeleccionada);
+            startActivityForResult(intent, 1);
         });
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            String nombre = data.getStringExtra("nombre");
+            int cantidad = data.getIntExtra("cantidad", 0);
+            double precio = data.getDoubleExtra("precio", 0.0);
+            String imagenUriStr = data.getStringExtra("imagenUri");
+            String area = data.getStringExtra("area");
+
+            Uri imagenUri = (imagenUriStr != null) ? Uri.parse(imagenUriStr) : null;
+
+            // Solo mostrar si pertenece al área actual
+            if (area.equals(getIntent().getStringExtra("AREA"))) {
+                Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUri, area);
+                listaInmuebles.add(nuevoInmueble);
+                adapter.notifyItemInserted(listaInmuebles.size() - 1);
+            }
+        }
+    }
+
 }
