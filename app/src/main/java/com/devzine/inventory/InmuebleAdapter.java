@@ -1,10 +1,10 @@
 package com.devzine.inventory;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.net.Uri;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,16 +43,27 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
         holder.txtCantidad.setText("Cantidad: " + inmueble.getCantidad());
 
         // Cargar la imagen si existe
-        if (inmueble.getImagenUri() != null) {
-            holder.imgInmueble.setImageURI(inmueble.getImagenUri());
+        if (inmueble.getImagenUri() != null && !inmueble.getImagenUri().isEmpty()) {
+            try {
+                Uri imagenUri = Uri.parse(inmueble.getImagenUri());
+                holder.imgInmueble.setImageURI(imagenUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+                holder.imgInmueble.setImageResource(R.drawable.ic_launcher_background); // Imagen por defecto en caso de error
+            }
         } else {
-            holder.imgInmueble.setImageResource(R.drawable.ic_launcher_background); // Imagen por defecto
+            holder.imgInmueble.setImageResource(R.drawable.ic_launcher_background);
         }
 
-        // Configurar botón eliminar
+        // Botón eliminar
         holder.btnEliminar.setOnClickListener(v -> {
-            listaInmuebles.remove(position);
-            notifyItemRemoved(position);
+            Inmueble inmuebleEliminar = listaInmuebles.get(position);
+            new Thread(() -> {
+                AppDatabase db = AppDatabase.getInstance(holder.itemView.getContext());
+                db.inmuebleDao().eliminarInmueble(inmuebleEliminar);
+                listaInmuebles.remove(position);
+                ((android.app.Activity) holder.itemView.getContext()).runOnUiThread(() -> notifyItemRemoved(position));
+            }).start();
         });
     }
 

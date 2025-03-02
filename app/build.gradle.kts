@@ -40,8 +40,10 @@ dependencies {
     implementation(libs.gridlayout)
 
     // Room (Librería de persistencia)
-    implementation("androidx.room:room-runtime:2.5.2")
-    annotationProcessor("androidx.room:room-compiler:2.5.2")
+    implementation(libs.room.runtime)
+    implementation(libs.room.common)
+    annotationProcessor(libs.room.compiler)
+    implementation (libs.room.rxjava3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
