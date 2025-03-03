@@ -13,18 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
-import android.widget.TextView;
-
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ListaInmueblesActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private InmuebleAdapter adapter;
     private List<Inmueble> listaInmuebles;
-    private Button btnAgregarInmueble; // Botón para agregar inmueble
     private AppDatabase db;
     private InmuebleDao inmuebleDao;
-
+    private FloatingActionButton fabAgregarInmueble;
+    private MaterialToolbar topAppBar;
     // Definir el lanzador de actividad para recibir el resultado
     private final ActivityResultLauncher<Intent> agregarInmuebleLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -49,13 +49,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        btnAgregarInmueble = findViewById(R.id.btnAgregarInmueble); // Vincular el botón
+        fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble); // Vincular el botón
 
         // Recibir el área seleccionada desde MainActivity
         String areaSeleccionada = getIntent().getStringExtra("AREA");
         // Mostrar el área en el título
-        TextView txtTitulo = findViewById(R.id.txtTitulo);
-        txtTitulo.setText("Inmuebles en " + areaSeleccionada);
+        topAppBar = findViewById(R.id.topAppBar);
+        topAppBar.setTitle("Lista de inmuebles en " + areaSeleccionada);
         db = AppDatabase.getInstance(this);
         inmuebleDao = db.inmuebleDao();
         // Datos de ejemplo
@@ -90,7 +90,7 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // Configurar botón para agregar inmueble
-        btnAgregarInmueble.setOnClickListener(v -> {
+        fabAgregarInmueble.setOnClickListener(v -> {
             Intent intent = new Intent(ListaInmueblesActivity.this, AgregarInmuebleActivity.class);
             intent.putExtra("AREA", areaSeleccionada);
             startActivityForResult(intent, 1);

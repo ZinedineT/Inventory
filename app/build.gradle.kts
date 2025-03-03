@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,13 +38,14 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.gridlayout)
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
 
     // Room (Librería de persistencia)
     implementation(libs.room.runtime)
     implementation(libs.room.common)
     annotationProcessor(libs.room.compiler)
     implementation (libs.room.rxjava3)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

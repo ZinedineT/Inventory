@@ -1,15 +1,17 @@
 package com.devzine.inventory;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.net.Uri;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHolder> {
@@ -30,7 +32,8 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inmueble, parent, false);
+        context= parent.getContext();
+        View view = LayoutInflater.from(context).inflate(R.layout.item_inmueble, parent, false);
         return new ViewHolder(view);
     }
 
@@ -42,17 +45,16 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
         holder.txtPrecio.setText("Precio: S/ " + inmueble.getPrecio());
         holder.txtCantidad.setText("Cantidad: " + inmueble.getCantidad());
 
-        // Cargar la imagen si existe
+        // Cargar la imagen usando Glide
         if (inmueble.getImagenUri() != null && !inmueble.getImagenUri().isEmpty()) {
-            try {
-                Uri imagenUri = Uri.parse(inmueble.getImagenUri());
-                holder.imgInmueble.setImageURI(imagenUri);
-            } catch (Exception e) {
-                e.printStackTrace();
-                holder.imgInmueble.setImageResource(R.drawable.ic_launcher_background); // Imagen por defecto en caso de error
-            }
+            Glide.with(context)
+                    .load(inmueble.getImagenUri())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Opcional: mejora el rendimiento del caché
+                    .centerCrop()
+                    .into(holder.imgInmueble);
         } else {
-            holder.imgInmueble.setImageResource(R.drawable.ic_launcher_background);
+            // Imagen por defecto o dejar el ImageView vacío
+            holder.imgInmueble.setImageResource(R.drawable.agregar); // Reemplaza con tu imagen predeterminada
         }
 
         // Botón eliminar

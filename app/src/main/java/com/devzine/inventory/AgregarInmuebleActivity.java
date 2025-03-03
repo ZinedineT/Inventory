@@ -16,8 +16,9 @@ import java.io.IOException;
 
 public class AgregarInmuebleActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int TAKE_PHOTO_REQUEST = 2; // Constante para la cámara
 
-    private ImageView imgInmueble;
+    private ImageView imgInmueble, imgCamara;
     private EditText edtNombre, edtCantidad, edtPrecio;
     private Uri imageUri;
     private String area;
@@ -29,6 +30,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_agregar_inmueble);
 
         imgInmueble = findViewById(R.id.imgInmueble);
+        imgCamara = findViewById(R.id.imgCamara);
         edtNombre = findViewById(R.id.edtNombre);
         edtCantidad = findViewById(R.id.edtCantidad);
         edtPrecio = findViewById(R.id.edtPrecio);
@@ -39,6 +41,8 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         area = getIntent().getStringExtra("AREA");
         // Botón para seleccionar una imagen desde la galería
         btnSeleccionarImagen.setOnClickListener(v -> abrirGaleria());
+        // Icono de la cámara
+        imgCamara.setOnClickListener(v -> abrirCamara()); // Listener para la cámara
         // Botón para guardar el inmueble
         btnGuardar.setOnClickListener(v -> guardarInmueble());
     }
@@ -47,20 +51,36 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+    private void abrirCamara() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, TAKE_PHOTO_REQUEST);
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                getContentResolver().takePersistableUriPermission(
-                        selectedImageUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                );
-
-                imageUri = selectedImageUri; // Guardar la URI persistente
-                imgInmueble.setImageURI(imageUri);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == PICK_IMAGE_REQUEST && data != null) {
+                Uri selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    getContentResolver().takePersistableUriPermission(
+                            selectedImageUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    );
+                    imageUri = selectedImageUri; // Guardar la URI persistente
+                    imgInmueble.setImageURI(imageUri);
+                }
+            } else if (requestCode == TAKE_PHOTO_REQUEST && data != null) {
+                Bundle extras = data.getExtras();
+                if (extras != null) {
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    if (imageBitmap != null) {
+                        imgInmueble.setImageBitmap(imageBitmap);
+                        imageUri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), imageBitmap, "Title", null));
+                    }
+                }
             }
         }
     }
