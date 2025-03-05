@@ -37,6 +37,20 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen);
         btnGuardar = findViewById(R.id.btnGuardar);
 
+        // Verificar si estamos en modo edición
+        boolean modoEdicion = getIntent().getBooleanExtra("MODO_EDICION", false);
+        if (modoEdicion) {
+            // Cargar datos del inmueble
+            edtNombre.setText(getIntent().getStringExtra("NOMBRE"));
+            edtCantidad.setText(String.valueOf(getIntent().getIntExtra("CANTIDAD", 0)));
+            edtPrecio.setText(String.valueOf(getIntent().getDoubleExtra("PRECIO", 0.0)));
+            String imagenUriStr = getIntent().getStringExtra("IMAGEN_URI");
+            if (imagenUriStr != null && !imagenUriStr.isEmpty()) {
+                imageUri = Uri.parse(imagenUriStr);
+                imgInmueble.setImageURI(imageUri);
+            }
+        }
+
         // ✅ ALMACENAR EL ÁREA SELECCIONADA
         area = getIntent().getStringExtra("AREA");
         // Botón para seleccionar una imagen desde la galería
@@ -108,6 +122,10 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         intent.putExtra("imagenUri", imageUri.toString()); // 🔹 Guardar URI como String
         intent.putExtra("area", area);
 
+        // Si estamos en modo edición, pasar el ID del inmueble
+        if (getIntent().getBooleanExtra("MODO_EDICION", false)) {
+            intent.putExtra("ID_INMUEBLE", getIntent().getIntExtra("ID_INMUEBLE", -1));
+        }
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

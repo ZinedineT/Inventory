@@ -3,6 +3,7 @@ package com.devzine.inventory;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
@@ -49,45 +50,45 @@ public class ListaInmueblesActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble); // Vincular el botón
+        fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble);
 
         // Recibir el área seleccionada desde MainActivity
         String areaSeleccionada = getIntent().getStringExtra("AREA");
-        // Mostrar el área en el título
         topAppBar = findViewById(R.id.topAppBar);
         topAppBar.setTitle("Lista de inmuebles en " + areaSeleccionada);
+
+        // Inicializar la base de datos
         db = AppDatabase.getInstance(this);
         inmuebleDao = db.inmuebleDao();
-        // Datos de ejemplo
+
+        // Inicializar la lista de inmuebles
         listaInmuebles = new ArrayList<>();
 
-        // 🔹 Cargar inmuebles desde la base de datos en segundo plano
+        // Cargar inmuebles desde la base de datos en segundo plano
         new Thread(() -> {
             List<Inmueble> inmueblesGuardados = inmuebleDao.obtenerInmueblesPorArea(areaSeleccionada);
             listaInmuebles.clear();
-            for (Inmueble inmueble : inmueblesGuardados) {
-                // ✅ Si imagenUri es null, asignar un string vacío
-                if (inmueble.getImagenUri() == null) {
-                    inmueble.setImagenUri("");
-                }
-                listaInmuebles.add(inmueble);
-            }
-            runOnUiThread(() -> adapter.notifyDataSetChanged());
-        }).start();
+            listaInmuebles.addAll(inmueblesGuardados);
 
+            // Verificar si los inmuebles se cargaron correctamente
+            Log.d("ListaInmuebles", "Inmuebles cargados: " + listaInmuebles.size());
 
-        // Configurar el adaptador
-        adapter = new InmuebleAdapter(listaInmuebles, position -> {
-            new Thread(() -> {
-                inmuebleDao.eliminarInmueble(listaInmuebles.get(position));
-                runOnUiThread(() -> {
-                    listaInmuebles.remove(position);
-                    adapter.notifyItemRemoved(position);
+            runOnUiThread(() -> {
+                // Inicializar el adaptador con la lista de inmuebles
+                adapter = new InmuebleAdapter(listaInmuebles, position -> {
+                    new Thread(() -> {
+                        inmuebleDao.eliminarInmueble(listaInmuebles.get(position));
+                        runOnUiThread(() -> {
+                            listaInmuebles.remove(position);
+                            adapter.notifyItemRemoved(position);
+                        });
+                    }).start();
                 });
-            }).start();
-        });
 
-        recyclerView.setAdapter(adapter);
+                // Asignar el adaptador al RecyclerView
+                recyclerView.setAdapter(adapter);
+            });
+        }).start();
 
         // Configurar botón para agregar inmueble
         fabAgregarInmueble.setOnClickListener(v -> {
@@ -100,24 +101,53 @@ public class ListaInmueblesActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-            String nombre = data.getStringExtra("nombre");
-            int cantidad = data.getIntExtra("cantidad", 0);
-            double precio = data.getDoubleExtra("precio", 0.0);
-            String imagenUriStr = data.getStringExtra("imagenUri");
-            String area = data.getStringExtra("area");
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == 1) { // Agregar nuevo inmueble
+                String nombre = data.getStringExtra("nombre");
+                int cantidad = data.getIntExtra("cantidad", 0);
+                double precio = data.getDoubleExtra("precio", 0.0);
+                String imagenUriStr = data.getStringExtra("imagenUri");
+                String area = data.getStringExtra("area");
 
-            // ✅ Verificar que imagenUri no sea null ni vacío antes de guardarlo
-            String imagenUri = (imagenUriStr != null && !imagenUriStr.isEmpty()) ? imagenUriStr : "";
-            Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUri, area);
+                Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUriStr, area);
 
-            new Thread(() -> {
-                inmuebleDao.insertarInmueble(nuevoInmueble);
-                runOnUiThread(() -> {
-                    listaInmuebles.add(nuevoInmueble);
-                    adapter.notifyItemInserted(listaInmuebles.size() - 1);
-                });
-            }).start();
+                new Thread(() -> {
+                    inmuebleDao.insertarInmueble(nuevoInmueble);
+                    runOnUiThread(() -> {
+                        listaInmuebles.add(nuevoInmueble);
+                        adapter.notifyItemInserted(listaInmuebles.size() - 1);
+
+                        // Log para verificar que el inmueble se insertó correctamente
+                        Log.d("ListaInmuebles", "Inmueble insertado: " + nuevoInmueble.getNombre() + ", Área: " + nuevoInmueble.getArea());
+                    });
+                }).start();
+            } else if (requestCode == 2) { // Editar inmueble
+                int idInmueble = data.getIntExtra("ID_INMUEBLE", -1);
+                String nombre = data.getStringExtra("nombre");
+                int cantidad = data.getIntExtra("cantidad", 0);
+                double precio = data.getDoubleExtra("precio", 0.0);
+                String imagenUriStr = data.getStringExtra("imagenUri");
+                String area = data.getStringExtra("area");
+
+                Inmueble inmuebleEditado = new Inmueble(nombre, cantidad, precio, imagenUriStr, area);
+                inmuebleEditado.setId(idInmueble);
+
+                new Thread(() -> {
+                    inmuebleDao.actualizarInmueble(inmuebleEditado);
+                    runOnUiThread(() -> {
+                        // Buscar el inmueble en la lista por su ID
+                        for (int i = 0; i < listaInmuebles.size(); i++) {
+                            if (listaInmuebles.get(i).getId() == idInmueble) {
+                                // Actualizar el inmueble en la lista
+                                listaInmuebles.set(i, inmuebleEditado);
+                                // Notificar al adaptador que el ítem ha cambiado
+                                adapter.notifyItemChanged(i);
+                                break;
+                            }
+                        }
+                    });
+                }).start();
+            }
         }
     }
 }

@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
+import android.content.Intent; // Para usar Intent
+import android.app.Activity; // Para usar Activity
 
 public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHolder> {
 
@@ -67,6 +69,18 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
                 ((android.app.Activity) holder.itemView.getContext()).runOnUiThread(() -> notifyItemRemoved(position));
             }).start();
         });
+        // Botón editar
+        holder.btnEditar.setOnClickListener(v -> {
+            Intent intent = new Intent(context, AgregarInmuebleActivity.class);
+            intent.putExtra("MODO_EDICION", true); // Indicar que estamos en modo edición
+            intent.putExtra("ID_INMUEBLE", inmueble.getId()); // Pasar el ID del inmueble
+            intent.putExtra("NOMBRE", inmueble.getNombre());
+            intent.putExtra("CANTIDAD", inmueble.getCantidad());
+            intent.putExtra("PRECIO", inmueble.getPrecio());
+            intent.putExtra("IMAGEN_URI", inmueble.getImagenUri());
+            intent.putExtra("AREA", inmueble.getArea());
+            ((Activity) context).startActivityForResult(intent, 2); // Usar un código de solicitud diferente (2)
+        });
     }
 
     @Override
@@ -77,7 +91,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre, txtPrecio, txtCantidad;
         ImageView imgInmueble;
-        Button btnEliminar;
+        Button btnEliminar, btnEditar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +100,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
             txtCantidad = itemView.findViewById(R.id.txtCantidad);
             imgInmueble = itemView.findViewById(R.id.imgInmueble);
             btnEliminar = itemView.findViewById(R.id.btnEliminar);
+            btnEditar = itemView.findViewById(R.id.btnEditar);
         }
     }
 }
