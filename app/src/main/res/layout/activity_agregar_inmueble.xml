@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:background="@android:color/darker_gray"
             android:contentDescription="Agregar"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitCenter" />
 
         <ImageView
             android:id="@+id/imgCamara"

@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/azuloscuro"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="8dp"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:src="@drawable/agregar" />
 
         <com.google.android.material.textview.MaterialTextView
