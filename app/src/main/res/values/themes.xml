@@ -4,6 +4,9 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
-
+    <style name="Theme.Inventory.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/azuloscuro</item>
+        <item name="android:statusBarColor">@color/azuloscuro</item>
+    </style>
     <style name="Theme.Inventory" parent="Base.Theme.Inventory" />
 </resources>

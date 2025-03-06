@@ -10,6 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/azuloscuro"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -25,8 +26,9 @@
             android:id="@+id/txtNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_medium"
             android:text="Nombre"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -34,17 +36,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:fontFamily="@font/montserrat_medium"
             android:text="Cantidad"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/txtPrecio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:fontFamily="@font/montserrat_medium"
             android:text="Precio"
             android:textColor="#FF5722"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,7 +63,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/blue"
+                android:backgroundTint="@color/azulclaro"
+                android:fontFamily="@font/montserrat_medium"
                 android:text="Editar"
                 android:textColor="#FFFFFF" />
 
@@ -67,6 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:backgroundTint="#D32F2F"
+                android:fontFamily="@font/montserrat_medium"
                 android:text="Eliminar"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
