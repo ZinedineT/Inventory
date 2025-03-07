@@ -32,12 +32,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Intent data = result.getData();
                     String nombre = data.getStringExtra("nombre");
+                    int codigo = data.getIntExtra("codigo", 0);
                     int cantidad = data.getIntExtra("cantidad", 0);
                     double precio = data.getDoubleExtra("precio", 0.0);
                     String imagenUriStr = data.getStringExtra("imagenUri");
                     String area = data.getStringExtra("area");
                     String imagenUri = (imagenUriStr != null) ? imagenUriStr : "";
-                    Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUri, area);
+                    Inmueble nuevoInmueble = new Inmueble(nombre,codigo, cantidad, precio, imagenUri, area);
                     listaInmuebles.add(nuevoInmueble);
                     adapter.notifyItemInserted(listaInmuebles.size() - 1);
                 }
@@ -84,7 +85,6 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                         });
                     }).start();
                 });
-
                 // Asignar el adaptador al RecyclerView
                 recyclerView.setAdapter(adapter);
             });
@@ -104,12 +104,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && data != null) {
             if (requestCode == 1) { // Agregar nuevo inmueble
                 String nombre = data.getStringExtra("nombre");
+                int codigo = data.getIntExtra("codigo", 0);
                 int cantidad = data.getIntExtra("cantidad", 0);
                 double precio = data.getDoubleExtra("precio", 0.0);
                 String imagenUriStr = data.getStringExtra("imagenUri");
                 String area = data.getStringExtra("area");
 
-                Inmueble nuevoInmueble = new Inmueble(nombre, cantidad, precio, imagenUriStr, area);
+                Inmueble nuevoInmueble = new Inmueble(nombre,codigo , cantidad, precio, imagenUriStr, area);
 
                 new Thread(() -> {
                     inmuebleDao.insertarInmueble(nuevoInmueble);
@@ -124,12 +125,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
             } else if (requestCode == 2) { // Editar inmueble
                 int idInmueble = data.getIntExtra("ID_INMUEBLE", -1);
                 String nombre = data.getStringExtra("nombre");
+                int codigo = data.getIntExtra("codigo", 0);
                 int cantidad = data.getIntExtra("cantidad", 0);
                 double precio = data.getDoubleExtra("precio", 0.0);
                 String imagenUriStr = data.getStringExtra("imagenUri");
                 String area = data.getStringExtra("area");
 
-                Inmueble inmuebleEditado = new Inmueble(nombre, cantidad, precio, imagenUriStr, area);
+                Inmueble inmuebleEditado = new Inmueble(nombre, codigo, cantidad, precio, imagenUriStr, area);
                 inmuebleEditado.setId(idInmueble);
 
                 new Thread(() -> {

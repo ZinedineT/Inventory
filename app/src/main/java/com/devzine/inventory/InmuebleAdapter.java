@@ -44,8 +44,10 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
         Inmueble inmueble = listaInmuebles.get(position);
 
         holder.txtNombre.setText(inmueble.getNombre());
-        holder.txtPrecio.setText("Precio: S/ " + inmueble.getPrecio());
+        holder.txtCodigo.setText("Codigo: " + inmueble.getCodigo());
         holder.txtCantidad.setText("Cantidad: " + inmueble.getCantidad());
+        holder.txtPrecio.setText("Precio: S/ " + inmueble.getPrecio());
+
 
         // Cargar la imagen usando Glide
         if (inmueble.getImagenUri() != null && !inmueble.getImagenUri().isEmpty()) {
@@ -75,6 +77,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
             intent.putExtra("MODO_EDICION", true); // Indicar que estamos en modo edición
             intent.putExtra("ID_INMUEBLE", inmueble.getId()); // Pasar el ID del inmueble
             intent.putExtra("NOMBRE", inmueble.getNombre());
+            intent.putExtra("CODIGO", inmueble.getCodigo());
             intent.putExtra("CANTIDAD", inmueble.getCantidad());
             intent.putExtra("PRECIO", inmueble.getPrecio());
             intent.putExtra("IMAGEN_URI", inmueble.getImagenUri());
@@ -89,13 +92,14 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtNombre, txtPrecio, txtCantidad;
+        TextView txtNombre,txtCodigo, txtPrecio, txtCantidad;
         ImageView imgInmueble;
         Button btnEliminar, btnEditar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             txtNombre = itemView.findViewById(R.id.txtNombre);
+            txtCodigo = itemView.findViewById(R.id.txtCodigo);
             txtPrecio = itemView.findViewById(R.id.txtPrecio);
             txtCantidad = itemView.findViewById(R.id.txtCantidad);
             imgInmueble = itemView.findViewById(R.id.imgInmueble);

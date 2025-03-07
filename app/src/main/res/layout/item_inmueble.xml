@@ -28,6 +28,17 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_medium"
             android:text="Nombre"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtCodigo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_medium"
+            android:text="Codigo"
+            android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -38,6 +49,7 @@
             android:layout_marginTop="4dp"
             android:fontFamily="@font/montserrat_medium"
             android:text="Cantidad"
+            android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"/>
 

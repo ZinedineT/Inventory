@@ -55,6 +55,16 @@
         android:minHeight="48dp" />
 
     <EditText
+        android:id="@+id/edtCodigo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat_medium"
+        android:hint="Ingrese el código"
+        android:textColor="@color/black"
+        android:inputType="number"
+        android:minHeight="48dp" />
+
+    <EditText
         android:id="@+id/edtCantidad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

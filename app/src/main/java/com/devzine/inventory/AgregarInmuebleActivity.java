@@ -19,7 +19,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
     private static final int TAKE_PHOTO_REQUEST = 2; // Constante para la cámara
 
     private ImageView imgInmueble, imgCamara;
-    private EditText edtNombre, edtCantidad, edtPrecio;
+    private EditText edtNombre,edtCodigo, edtCantidad, edtPrecio;
     private Uri imageUri;
     private String area;
     private Button btnSeleccionarImagen, btnGuardar;
@@ -32,6 +32,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         imgInmueble = findViewById(R.id.imgInmueble);
         imgCamara = findViewById(R.id.imgCamara);
         edtNombre = findViewById(R.id.edtNombre);
+        edtCodigo = findViewById(R.id.edtCodigo);
         edtCantidad = findViewById(R.id.edtCantidad);
         edtPrecio = findViewById(R.id.edtPrecio);
         btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen);
@@ -42,6 +43,7 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         if (modoEdicion) {
             // Cargar datos del inmueble
             edtNombre.setText(getIntent().getStringExtra("NOMBRE"));
+            edtCodigo.setText(String.valueOf(getIntent().getIntExtra("CODIGO", 0)));
             edtCantidad.setText(String.valueOf(getIntent().getIntExtra("CANTIDAD", 0)));
             edtPrecio.setText(String.valueOf(getIntent().getDoubleExtra("PRECIO", 0.0)));
             String imagenUriStr = getIntent().getStringExtra("IMAGEN_URI");
@@ -104,19 +106,22 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
             area = "Sin Área"; // 🔹 Si el área es null, asigna un valor por defecto
         }
         String nombre = edtNombre.getText().toString();
+        String codigoStr = edtCodigo.getText().toString();
         String cantidadStr = edtCantidad.getText().toString();
         String precioStr = edtPrecio.getText().toString();
 
-        if (nombre.isEmpty() || cantidadStr.isEmpty() || precioStr.isEmpty() || imageUri == null) {
+        if (nombre.isEmpty() || codigoStr.isEmpty() || cantidadStr.isEmpty() || precioStr.isEmpty() || imageUri == null) {
             Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        int codigo = Integer.parseInt(codigoStr);
         int cantidad = Integer.parseInt(cantidadStr);
         double precio = Double.parseDouble(precioStr);
 
         Intent intent = new Intent();
         intent.putExtra("nombre", nombre);
+        intent.putExtra("codigo", codigo);
         intent.putExtra("cantidad", cantidad);
         intent.putExtra("precio", precio);
         intent.putExtra("imagenUri", imageUri.toString()); // 🔹 Guardar URI como String
