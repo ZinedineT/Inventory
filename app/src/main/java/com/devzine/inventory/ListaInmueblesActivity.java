@@ -1,10 +1,10 @@
 package com.devzine.inventory;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
-import android.widget.Button;
+import android.view.View;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -12,10 +12,25 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 
 public class ListaInmueblesActivity extends AppCompatActivity {
 
@@ -89,12 +104,33 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 recyclerView.setAdapter(adapter);
             });
         }).start();
-
         // Configurar botón para agregar inmueble
         fabAgregarInmueble.setOnClickListener(v -> {
             Intent intent = new Intent(ListaInmueblesActivity.this, AgregarInmuebleActivity.class);
             intent.putExtra("AREA", areaSeleccionada);
             startActivityForResult(intent, 1);
+        });
+        FloatingActionButton fabGenerarReportePdf = findViewById(R.id.fabGenerarReportePdf);
+        fabGenerarReportePdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generarReportePdf();
+            }
+        });
+        // Obtener referencia al EditText de búsqueda
+        EditText searchEditText = findViewById(R.id.searchEditText);
+
+        // Agregar TextWatcher para la búsqueda en tiempo real
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filter(s.toString());
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
     @Override
@@ -122,7 +158,7 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                         Log.d("ListaInmuebles", "Inmueble insertado: " + nuevoInmueble.getNombre() + ", Área: " + nuevoInmueble.getArea());
                     });
                 }).start();
-            } else if (requestCode == 2) { // Editar inmueble
+            } else if (requestCode == 2) { //Esto es para la edicion del inmueble
                 int idInmueble = data.getIntExtra("ID_INMUEBLE", -1);
                 String nombre = data.getStringExtra("nombre");
                 int codigo = data.getIntExtra("codigo", 0);
@@ -150,6 +186,62 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                     });
                 }).start();
             }
+        }
+    }
+    private void generarReportePdf() {
+        try {
+            // 1. Crear el documento PDF
+            Document documento = new Document();
+
+            File documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            File file = new File(documentsFolder, "Reporte_inmuebles.pdf");
+            PdfWriter.getInstance(documento, new FileOutputStream(file));
+            documento.open();
+
+            // 2. Agregar contenido al PDF (título, información de los inmuebles)
+            Paragraph titulo = new Paragraph("Reporte de Inmuebles", new Font(Font.FontFamily.HELVETICA, 22, Font.BOLD));
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            documento.add(titulo);
+
+            // Agregar un espacio en blanco después del título
+            documento.add(new Paragraph(" "));
+            // Crear una tabla para los inmuebles
+            PdfPTable table = new PdfPTable(5); // 5 columnas: Nombre, Código, Cantidad, Precio, Área
+            table.setWidthPercentage(100);
+
+            // Agregar encabezados de columna
+            table.addCell("NOMBRE");
+            table.addCell("CÓDIGO");
+            table.addCell("CANTIDAD");
+            table.addCell("PRECIO");
+            table.addCell("ÁREA");
+
+            // Agregar datos de los inmuebles a la tabla
+            for (Inmueble inmueble : listaInmuebles) {
+                table.addCell(inmueble.getNombre());
+                table.addCell(String.valueOf(inmueble.getCodigo()));
+                table.addCell(String.valueOf(inmueble.getCantidad()));
+                table.addCell(String.valueOf(inmueble.getPrecio()));
+                table.addCell(inmueble.getArea());
+            }
+            documento.add(table);
+            // Agregar un espacio en blanco antes del pie de página
+            documento.add(new Paragraph(" "));
+            // Agregar pie de página con fecha y hora
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            String fechaHora = dateFormat.format(new Date());
+            Paragraph piePagina = new Paragraph("Generado el " + fechaHora, new Font(Font.FontFamily.HELVETICA, 10));
+            piePagina.setAlignment(Element.ALIGN_CENTER);
+            documento.add(piePagina);
+
+            // 3. Cerrar el documento
+            documento.close();
+
+            Toast.makeText(this, "Reporte PDF generado con éxito", Toast.LENGTH_SHORT).show();
+
+        } catch (DocumentException | FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al generar el reporte PDF", Toast.LENGTH_SHORT).show();
         }
     }
 }

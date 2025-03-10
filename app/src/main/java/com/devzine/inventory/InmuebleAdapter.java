@@ -1,7 +1,6 @@
 package com.devzine.inventory;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import java.util.ArrayList;
 import java.util.List;
-import android.content.Intent; // Para usar Intent
-import android.app.Activity; // Para usar Activity
+import android.content.Intent;
+import android.app.Activity;
 
 public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHolder> {
 
     private List<Inmueble> listaInmuebles;
+    private List<Inmueble> listaInmueblesOriginal;
     private OnItemClickListener onItemClickListener;
     private Context context;
 
@@ -28,7 +29,9 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
 
     public InmuebleAdapter(List<Inmueble> listaInmuebles, OnItemClickListener onItemClickListener) {
         this.listaInmuebles = listaInmuebles;
+        this.listaInmueblesOriginal = new ArrayList<>(listaInmuebles);
         this.onItemClickListener = onItemClickListener;
+        this.context = null;
     }
 
     @NonNull
@@ -88,9 +91,9 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
 
     @Override
     public int getItemCount() {
+
         return listaInmuebles.size();
     }
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre,txtCodigo, txtPrecio, txtCantidad;
         ImageView imgInmueble;
@@ -106,5 +109,20 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
             btnEliminar = itemView.findViewById(R.id.btnEliminar);
             btnEditar = itemView.findViewById(R.id.btnEditar);
         }
+    }
+    public void filter(String query) {
+        listaInmuebles.clear();
+        if (query.isEmpty()) {
+            listaInmuebles.addAll(listaInmueblesOriginal);
+        } else {
+            query = query.toLowerCase();
+            for (Inmueble inmueble : listaInmueblesOriginal) {
+                if (inmueble.getNombre().toLowerCase().contains(query) ||
+                        String.valueOf(inmueble.getCodigo()).contains(query)) {
+                    listaInmuebles.add(inmueble);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }
