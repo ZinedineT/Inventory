@@ -51,7 +51,6 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
                 imgInmueble.setImageURI(imageUri);
             }
         }
-
         // ✅ ALMACENAR EL ÁREA SELECCIONADA
         area = getIntent().getStringExtra("AREA");
         // Botón para seleccionar una imagen desde la galería
@@ -61,7 +60,6 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
         // Botón para guardar el inmueble
         btnGuardar.setOnClickListener(v -> guardarInmueble());
     }
-
     private void abrirGaleria() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);

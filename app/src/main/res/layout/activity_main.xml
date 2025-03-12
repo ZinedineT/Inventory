@@ -15,11 +15,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:contentDescription="Logo principal"
         android:src="@drawable/logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/logo"/>
 
     <ImageView
         android:id="@+id/Gerencia"
@@ -30,7 +30,8 @@
         app:layout_constraintHorizontal_bias="0.226"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/gerencia" />
+        app:srcCompat="@drawable/gerencia"
+        android:contentDescription="@string/imagen_gerencia"/>
 
     <Button
         android:id="@+id/btnGerencia"
@@ -39,7 +40,7 @@
         android:layout_marginTop="124dp"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Gerencia"
+        android:text="@string/btn_gerencia"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.246"
@@ -55,7 +56,8 @@
         app:layout_constraintHorizontal_bias="0.466"
         app:layout_constraintStart_toEndOf="@+id/Gerencia"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/tecnologia" />
+        app:srcCompat="@drawable/tecnologia"
+        android:contentDescription="@string/imagen_tecnologia"/>
 
     <Button
         android:id="@+id/btnTecnologia"
@@ -64,7 +66,7 @@
         android:layout_marginTop="124dp"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Tecnología"
+        android:text="@string/btn_tecnologia"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.808"
@@ -80,7 +82,8 @@
         app:layout_constraintHorizontal_bias="0.226"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/marketing" />
+        app:srcCompat="@drawable/marketing"
+        android:contentDescription="@string/imagen_marketing"/>
 
     <Button
         android:id="@+id/btnMarketing"
@@ -89,7 +92,7 @@
         android:layout_marginTop="128dp"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Marketing"
+        android:text="@string/btn_marketing"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.23"
@@ -105,7 +108,8 @@
         app:layout_constraintHorizontal_bias="0.807"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/administracion" />
+        app:srcCompat="@drawable/administracion"
+        android:contentDescription="@string/imagen_administracion"/>
 
     <Button
         android:id="@+id/btnAdministracion"
@@ -114,7 +118,7 @@
         android:layout_marginTop="128dp"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Administración"
+        android:text="@string/btn_administracion"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.842"

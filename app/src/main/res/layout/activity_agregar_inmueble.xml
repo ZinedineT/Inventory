@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/darker_gray"
-            android:contentDescription="Agregar"
+            android:contentDescription="@string/img_inmueble"
             android:scaleType="fitCenter" />
 
         <ImageView
@@ -29,7 +28,7 @@
             android:layout_margin="8dp"
             android:background="@android:drawable/ic_menu_camera"
             android:clickable="true"
-            android:contentDescription="Tomar foto"
+            android:contentDescription="@string/icono_camara"
             android:focusable="true"
             app:srcCompat="@android:drawable/ic_menu_camera" />
     </FrameLayout>
@@ -41,7 +40,7 @@
         android:layout_gravity="center"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Seleccionar Imagen"
+        android:text="@string/btn_seleccionar_imagen"
         android:textColor="@color/white"
         app:icon="@android:drawable/ic_menu_search" />
 
@@ -50,39 +49,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_medium"
-        android:hint="Ingrese el nombre"
+        android:hint="@string/hint_ingrese_nombre"
+        android:inputType="textCapSentences"
         android:textColor="@color/black"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:autofillHints="name"/>
 
     <EditText
         android:id="@+id/edtCodigo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_medium"
-        android:hint="Ingrese el código"
+        android:hint="@string/hint_ingrese_codigo"
         android:textColor="@color/black"
-        android:inputType="number"
-        android:minHeight="48dp" />
+        android:inputType="number|text|numberSigned"
+        android:minHeight="48dp"
+        android:autofillHints="number"/>
 
     <EditText
         android:id="@+id/edtCantidad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_medium"
-        android:hint="Ingrese la cantidad"
+        android:hint="@string/hint_ingrese_cantidad"
         android:textColor="@color/black"
         android:inputType="number"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:autofillHints="number"/>
 
     <EditText
         android:id="@+id/edtPrecio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_medium"
-        android:hint="Ingrese el precio"
+        android:hint="@string/hint_ingrese_precio"
         android:textColor="@color/black"
         android:inputType="numberDecimal"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:autofillHints="number"/>
 
     <Button
         android:id="@+id/btnGuardar"
@@ -91,7 +95,8 @@
         android:layout_gravity="center"
         android:backgroundTint="@color/azulclaro"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Guardar Inmueble"
+        android:text="@string/btn_guardar_inmueble"
         android:textColor="@color/white"
-        app:icon="@android:drawable/ic_menu_save" />
+        app:icon="@android:drawable/ic_menu_save"
+        />
 </LinearLayout>

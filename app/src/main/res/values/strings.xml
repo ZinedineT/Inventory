@@ -1,3 +1,36 @@
 <resources>
+    // ACTIVITY MAIN
     <string name="app_name">Inventory</string>
+    <string name="logo">Logo</string>
+    <string name="imagen_gerencia">Imagen del área de Gerencia</string>
+    <string name="imagen_tecnologia">Imagen del área de Tecnología</string>
+    <string name="imagen_marketing">Imagen del área de Marketing</string>
+    <string name="imagen_administracion">Imagen del área de Administración</string>
+    <string name="btn_gerencia">Gerencia</string>
+    <string name="btn_tecnologia">Tecnología</string>
+    <string name="btn_marketing">Marketing</string>
+    <string name="btn_administracion">Administración</string>
+    //ACITIVITY LISTA INMUEBLES
+    <string name="hint_buscar_inmueble">Buscar por nombre o código</string>
+    <string name="icono_buscar">Icono de búsqueda</string>
+    <string name="agregar_inmueble">Agregar inmueble</string>
+    <string name="generar_reporte_pdf">Generar reporte PDF</string>
+    //ACTIVITY AGREGAR INMUEBLE
+    <string name="btn_guardar_inmueble">Guardar Inmueble</string>
+    <string name="icono_camara">Tomar foto</string>
+    <string name="img_inmueble">Imagen del inmueble</string>
+    <string name="btn_seleccionar_imagen">Seleccionar Imagen</string>
+    <string name="hint_ingrese_nombre">Ingrese el nombre</string>
+    <string name="hint_ingrese_codigo">Ingrese el código</string>
+    <string name="hint_ingrese_cantidad">Ingrese la cantidad</string>
+    <string name="hint_ingrese_precio">Ingrese el precio</string>
+    //ACTIVITY SPLASH
+    <string name="creciendo">Creciendo contigo</string>
+    //ITEM INMUEBLE
+    <string name="nombre_item">Nombre</string>
+    <string name="codigo_item">Codigo</string>
+    <string name="cantidad_item">Cantidad</string>
+    <string name="precio_item">Precio</string>
+    <string name="editar_item">Editar</string>
+    <string name="eliminar_item">Eliminar</string>
 </resources>

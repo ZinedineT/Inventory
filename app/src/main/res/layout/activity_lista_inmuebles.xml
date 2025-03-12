@@ -42,10 +42,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Buscar por nombre o código"
+            android:hint="@string/hint_buscar_inmueble"
             android:textColorHint="@color/white"
             android:inputType="text"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:autofillHints="name"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -53,7 +54,8 @@
             android:src="@android:drawable/ic_menu_search"
             android:layout_gravity="center_vertical"
             android:paddingStart="8dp"
-            android:paddingEnd="8dp"/>
+            android:paddingEnd="8dp"
+            android:contentDescription="@string/icono_buscar"/>
 
     </LinearLayout>
 
@@ -70,7 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:contentDescription="Agregar inmueble"
+        android:contentDescription="@string/agregar_inmueble"
         app:backgroundTint="@color/azulclaro"
         app:srcCompat="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -81,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:contentDescription="Generar reporte PDF"
+        android:contentDescription="@string/generar_reporte_pdf"
         app:backgroundTint="@color/red"
         app:srcCompat="@android:drawable/ic_menu_save"
         app:layout_constraintBottom_toBottomOf="parent"
