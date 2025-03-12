@@ -23,6 +23,10 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
     private OnItemClickListener onItemClickListener;
     private Context context;
 
+    public void actualizarListaOriginal(List<Inmueble> nuevaLista) {
+        this.listaInmueblesOriginal.clear();
+        this.listaInmueblesOriginal.addAll(nuevaLista);
+    }
     public interface OnItemClickListener {
         void onItemClick(int position);
     }

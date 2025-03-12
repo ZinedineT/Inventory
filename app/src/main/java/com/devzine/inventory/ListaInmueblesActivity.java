@@ -1,8 +1,13 @@
 package com.devzine.inventory;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -27,13 +33,11 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
 public class ListaInmueblesActivity extends AppCompatActivity {
-
     private RecyclerView recyclerView;
     private InmuebleAdapter adapter;
     private List<Inmueble> listaInmuebles;
@@ -58,37 +62,29 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                     adapter.notifyItemInserted(listaInmuebles.size() - 1);
                 }
             });
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_inmuebles);
-
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble);
-
         // Recibir el área seleccionada desde MainActivity
         String areaSeleccionada = getIntent().getStringExtra("AREA");
         topAppBar = findViewById(R.id.topAppBar);
         topAppBar.setTitle("Lista de inmuebles en " + areaSeleccionada);
-
         // Inicializar la base de datos
         db = AppDatabase.getInstance(this);
         inmuebleDao = db.inmuebleDao();
-
         // Inicializar la lista de inmuebles
         listaInmuebles = new ArrayList<>();
-
         // Cargar inmuebles desde la base de datos en segundo plano
         new Thread(() -> {
             List<Inmueble> inmueblesGuardados = inmuebleDao.obtenerInmueblesPorArea(areaSeleccionada);
             listaInmuebles.clear();
             listaInmuebles.addAll(inmueblesGuardados);
-
             // Verificar si los inmuebles se cargaron correctamente
             Log.d("ListaInmuebles", "Inmuebles cargados: " + listaInmuebles.size());
-
             runOnUiThread(() -> {
                 // Inicializar el adaptador con la lista de inmuebles
                 adapter = new InmuebleAdapter(listaInmuebles, position -> {
@@ -102,6 +98,20 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 });
                 // Asignar el adaptador al RecyclerView
                 recyclerView.setAdapter(adapter);
+                // Obtener referencia al EditText de búsqueda
+                EditText searchEditText = findViewById(R.id.searchEditText);
+                // Agregar TextWatcher para la búsqueda en tiempo real
+                searchEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        adapter.filter(s.toString());
+                    }
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                });
             });
         }).start();
         // Configurar botón para agregar inmueble
@@ -117,22 +127,8 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 generarReportePdf();
             }
         });
-        // Obtener referencia al EditText de búsqueda
-        EditText searchEditText = findViewById(R.id.searchEditText);
-
-        // Agregar TextWatcher para la búsqueda en tiempo real
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.filter(s.toString());
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
     }
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -147,15 +143,14 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 String area = data.getStringExtra("area");
 
                 Inmueble nuevoInmueble = new Inmueble(nombre,codigo , cantidad, precio, imagenUriStr, area);
-
                 new Thread(() -> {
                     inmuebleDao.insertarInmueble(nuevoInmueble);
                     runOnUiThread(() -> {
                         listaInmuebles.add(nuevoInmueble);
+                        // Actualizar la lista original en el adaptador
+                        adapter.actualizarListaOriginal(listaInmuebles);
                         adapter.notifyItemInserted(listaInmuebles.size() - 1);
-
-                        // Log para verificar que el inmueble se insertó correctamente
-                        Log.d("ListaInmuebles", "Inmueble insertado: " + nuevoInmueble.getNombre() + ", Área: " + nuevoInmueble.getArea());
+                        adapter.notifyDataSetChanged();
                     });
                 }).start();
             } else if (requestCode == 2) { //Esto es para la edicion del inmueble
@@ -193,53 +188,69 @@ public class ListaInmueblesActivity extends AppCompatActivity {
             // 1. Crear el documento PDF
             Document documento = new Document();
 
-            File documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            File file = new File(documentsFolder, "Reporte_inmuebles.pdf");
-            PdfWriter.getInstance(documento, new FileOutputStream(file));
-            documento.open();
+            String fileName = "Reporte_inmuebles.pdf";
+            Uri collection;
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
 
-            // 2. Agregar contenido al PDF (título, información de los inmuebles)
-            Paragraph titulo = new Paragraph("Reporte de Inmuebles", new Font(Font.FontFamily.HELVETICA, 22, Font.BOLD));
-            titulo.setAlignment(Element.ALIGN_CENTER);
-            documento.add(titulo);
-
-            // Agregar un espacio en blanco después del título
-            documento.add(new Paragraph(" "));
-            // Crear una tabla para los inmuebles
-            PdfPTable table = new PdfPTable(5); // 5 columnas: Nombre, Código, Cantidad, Precio, Área
-            table.setWidthPercentage(100);
-
-            // Agregar encabezados de columna
-            table.addCell("NOMBRE");
-            table.addCell("CÓDIGO");
-            table.addCell("CANTIDAD");
-            table.addCell("PRECIO");
-            table.addCell("ÁREA");
-
-            // Agregar datos de los inmuebles a la tabla
-            for (Inmueble inmueble : listaInmuebles) {
-                table.addCell(inmueble.getNombre());
-                table.addCell(String.valueOf(inmueble.getCodigo()));
-                table.addCell(String.valueOf(inmueble.getCantidad()));
-                table.addCell(String.valueOf(inmueble.getPrecio()));
-                table.addCell(inmueble.getArea());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+            } else {
+                File documentsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+                File file = new File(documentsFolder, fileName);
+                collection = Uri.fromFile(file);
             }
-            documento.add(table);
-            // Agregar un espacio en blanco antes del pie de página
-            documento.add(new Paragraph(" "));
-            // Agregar pie de página con fecha y hora
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            String fechaHora = dateFormat.format(new Date());
-            Paragraph piePagina = new Paragraph("Generado el " + fechaHora, new Font(Font.FontFamily.HELVETICA, 10));
-            piePagina.setAlignment(Element.ALIGN_CENTER);
-            documento.add(piePagina);
 
-            // 3. Cerrar el documento
-            documento.close();
+            Uri fileUri = getContentResolver().insert(collection, values);
 
-            Toast.makeText(this, "Reporte PDF generado con éxito", Toast.LENGTH_SHORT).show();
+            if (fileUri != null) {
+                FileOutputStream outputStream = (FileOutputStream) getContentResolver().openOutputStream(fileUri);
+                PdfWriter.getInstance(documento, outputStream);
+                documento.open();
 
-        } catch (DocumentException | FileNotFoundException e) {
+                // 2. Agregar contenido al PDF (título, información de los inmuebles)
+                Paragraph titulo = new Paragraph("Reporte de Inmuebles", new Font(Font.FontFamily.HELVETICA, 22, Font.BOLD));
+                titulo.setAlignment(Element.ALIGN_CENTER);
+                documento.add(titulo);
+                // Agregar un espacio en blanco después del título
+                documento.add(new Paragraph(" "));
+                // Crear una tabla para los inmuebles
+                PdfPTable table = new PdfPTable(5); // 5 columnas: Nombre, Código, Cantidad, Precio, Área
+                table.setWidthPercentage(100);
+                // Agregar encabezados de columna
+                table.addCell("NOMBRE");
+                table.addCell("CÓDIGO");
+                table.addCell("CANTIDAD");
+                table.addCell("PRECIO");
+                table.addCell("ÁREA");
+                // Agregar datos de los inmuebles a la tabla
+                for (Inmueble inmueble : listaInmuebles) {
+                    table.addCell(inmueble.getNombre());
+                    table.addCell(String.valueOf(inmueble.getCodigo()));
+                    table.addCell(String.valueOf(inmueble.getCantidad()));
+                    table.addCell(String.valueOf(inmueble.getPrecio()));
+                    table.addCell(inmueble.getArea());
+                }
+                documento.add(table);
+                // Agregar un espacio en blanco antes del pie de página
+                documento.add(new Paragraph(" "));
+                // Agregar pie de página con fecha y hora
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                String fechaHora = dateFormat.format(new Date());
+                Paragraph piePagina = new Paragraph("Generado el " + fechaHora, new Font(Font.FontFamily.HELVETICA, 10));
+                piePagina.setAlignment(Element.ALIGN_CENTER);
+                documento.add(piePagina);
+                // 3. Cerrar el documento
+                documento.close();
+                outputStream.close();
+
+                Toast.makeText(this, "Reporte PDF generado con éxito", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Error al crear el archivo", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (DocumentException | IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error al generar el reporte PDF", Toast.LENGTH_SHORT).show();
         }

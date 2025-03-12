@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.IOException;
 
 public class AgregarInmuebleActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -73,7 +72,6 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
             startActivityForResult(takePictureIntent, TAKE_PHOTO_REQUEST);
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -100,7 +98,6 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
             }
         }
     }
-
     private void guardarInmueble() {
         if (area == null) {
             area = "Sin Área"; // 🔹 Si el área es null, asigna un valor por defecto
@@ -114,7 +111,6 @@ public class AgregarInmuebleActivity extends AppCompatActivity {
             Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
-
         int codigo = Integer.parseInt(codigoStr);
         int cantidad = Integer.parseInt(cantidadStr);
         double precio = Double.parseDouble(precioStr);
