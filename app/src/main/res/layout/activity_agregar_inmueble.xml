@@ -62,7 +62,7 @@
         android:fontFamily="@font/montserrat_medium"
         android:hint="@string/hint_ingrese_codigo"
         android:textColor="@color/black"
-        android:inputType="number|text|numberSigned"
+        android:inputType="text|number"
         android:minHeight="48dp"
         android:autofillHints="number"/>
 

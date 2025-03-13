@@ -2,6 +2,7 @@ package com.devzine.inventory;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -9,7 +10,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -36,15 +36,22 @@ import java.io.FileOutputStream;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.print.PrintDocumentInfo;
+import android.os.ParcelFileDescriptor;
+import java.io.InputStream;
+import java.util.Locale;
+
+import android.print.PageRange;
+import android.os.CancellationSignal;
 
 public class ListaInmueblesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private InmuebleAdapter adapter;
     private List<Inmueble> listaInmuebles;
-    private AppDatabase db;
     private InmuebleDao inmuebleDao;
-    private FloatingActionButton fabAgregarInmueble;
-    private MaterialToolbar topAppBar;
     // Definir el lanzador de actividad para recibir el resultado
     private final ActivityResultLauncher<Intent> agregarInmuebleLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -68,13 +75,13 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lista_inmuebles);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble);
+        FloatingActionButton fabAgregarInmueble = findViewById(R.id.fabAgregarInmueble);
         // Recibir el área seleccionada desde MainActivity
         String areaSeleccionada = getIntent().getStringExtra("AREA");
-        topAppBar = findViewById(R.id.topAppBar);
+        MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
         topAppBar.setTitle("Lista de inmuebles en " + areaSeleccionada);
         // Inicializar la base de datos
-        db = AppDatabase.getInstance(this);
+        AppDatabase db = AppDatabase.getInstance(this);
         inmuebleDao = db.inmuebleDao();
         // Inicializar la lista de inmuebles
         listaInmuebles = new ArrayList<>();
@@ -87,15 +94,14 @@ public class ListaInmueblesActivity extends AppCompatActivity {
             Log.d("ListaInmuebles", "Inmuebles cargados: " + listaInmuebles.size());
             runOnUiThread(() -> {
                 // Inicializar el adaptador con la lista de inmuebles
-                adapter = new InmuebleAdapter(listaInmuebles, position -> {
-                    new Thread(() -> {
-                        inmuebleDao.eliminarInmueble(listaInmuebles.get(position));
-                        runOnUiThread(() -> {
-                            listaInmuebles.remove(position);
-                            adapter.notifyItemRemoved(position);
-                        });
-                    }).start();
-                });
+                adapter = new InmuebleAdapter(listaInmuebles, position ->
+                        new Thread(() -> {
+                    inmuebleDao.eliminarInmueble(listaInmuebles.get(position));
+                    runOnUiThread(() -> {
+                        listaInmuebles.remove(position);
+                        adapter.notifyItemRemoved(position);
+                    });
+                }).start());
                 // Asignar el adaptador al RecyclerView
                 recyclerView.setAdapter(adapter);
                 // Obtener referencia al EditText de búsqueda
@@ -118,15 +124,10 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         fabAgregarInmueble.setOnClickListener(v -> {
             Intent intent = new Intent(ListaInmueblesActivity.this, AgregarInmuebleActivity.class);
             intent.putExtra("AREA", areaSeleccionada);
-            startActivityForResult(intent, 1);
+            agregarInmuebleLauncher.launch(intent);
         });
         FloatingActionButton fabGenerarReportePdf = findViewById(R.id.fabGenerarReportePdf);
-        fabGenerarReportePdf.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                generarReportePdf();
-            }
-        });
+        fabGenerarReportePdf.setOnClickListener(v -> generarReportePdf());
     }
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -187,13 +188,11 @@ public class ListaInmueblesActivity extends AppCompatActivity {
         try {
             // 1. Crear el documento PDF
             Document documento = new Document();
-
             String fileName = "Reporte_inmuebles.pdf";
             Uri collection;
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS);
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
             } else {
@@ -201,14 +200,11 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 File file = new File(documentsFolder, fileName);
                 collection = Uri.fromFile(file);
             }
-
             Uri fileUri = getContentResolver().insert(collection, values);
-
             if (fileUri != null) {
                 FileOutputStream outputStream = (FileOutputStream) getContentResolver().openOutputStream(fileUri);
                 PdfWriter.getInstance(documento, outputStream);
                 documento.open();
-
                 // 2. Agregar contenido al PDF (título, información de los inmuebles)
                 Paragraph titulo = new Paragraph("Reporte de Inmuebles", new Font(Font.FontFamily.HELVETICA, 22, Font.BOLD));
                 titulo.setAlignment(Element.ALIGN_CENTER);
@@ -236,23 +232,74 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 // Agregar un espacio en blanco antes del pie de página
                 documento.add(new Paragraph(" "));
                 // Agregar pie de página con fecha y hora
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
                 String fechaHora = dateFormat.format(new Date());
                 Paragraph piePagina = new Paragraph("Generado el " + fechaHora, new Font(Font.FontFamily.HELVETICA, 10));
                 piePagina.setAlignment(Element.ALIGN_CENTER);
                 documento.add(piePagina);
                 // 3. Cerrar el documento
                 documento.close();
-                outputStream.close();
-
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+                //Iniciar la impresion
+                iniciarImpresion(fileUri);
                 Toast.makeText(this, "Reporte PDF generado con éxito", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Error al crear el archivo", Toast.LENGTH_SHORT).show();
             }
-
         } catch (DocumentException | IOException e) {
-            e.printStackTrace();
+            Log.e("ListaInmueblesActivity", "Error al generar el reporte PDF", e);
             Toast.makeText(this, "Error al generar el reporte PDF", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void iniciarImpresion(Uri fileUri){
+        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+        String jobName = getString(R.string.app_name) + "Document";
+        PrintDocumentAdapter printAdapter = new PdfDocumentAdapter(this, fileUri);
+        printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+    }
+    private static class PdfDocumentAdapter extends PrintDocumentAdapter {
+        Context context;
+        Uri fileUri;
+        public PdfDocumentAdapter(Context context, Uri fileUri) {
+            this.context = context;
+            this.fileUri = fileUri;
+        }
+        @Override
+        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, android.os.CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
+            if (cancellationSignal.isCanceled()) {
+                callback.onLayoutCancelled();
+                return;
+            }
+            PrintDocumentInfo info = new PrintDocumentInfo.Builder("Reporte_inmuebles.pdf").setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT).build();
+            callback.onLayoutFinished(info, !newAttributes.equals(oldAttributes));
+        }
+        @Override
+        public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
+            InputStream input = null;
+            FileOutputStream output = null;
+            try {
+                input = context.getContentResolver().openInputStream(fileUri);
+                output = new FileOutputStream(destination.getFileDescriptor());
+                byte[] buf = new byte[1024];
+                int bytesRead;
+                if (input != null) {
+                    while ((bytesRead = input.read(buf)) > 0) {
+                        output.write(buf, 0, bytesRead);
+                    }
+                }
+                callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
+            } catch (Exception e) {
+                callback.onWriteFailed(e.toString());
+            } finally {
+                try {
+                    if (input != null) input.close();
+                    if (output != null) output.close();
+                } catch (IOException e) {
+                    Log.e("PdfDocumentAdapter", "Error al cerrar streams", e);
+                }
+            }
         }
     }
 }
