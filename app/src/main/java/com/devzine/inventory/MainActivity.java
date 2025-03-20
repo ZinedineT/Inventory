@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnMarketing = findViewById(R.id.btnMarketing);
 
         btnGerencia.setOnClickListener(view -> abrirLista("Gerencia"));
-        btnAdministracion.setOnClickListener(view -> abrirLista("Administración"));
-        btnTecnologia.setOnClickListener(view -> abrirLista("Tecnología"));
+        btnAdministracion.setOnClickListener(view -> abrirLista("Administracion"));
+        btnTecnologia.setOnClickListener(view -> abrirLista("Tecnologia"));
         btnMarketing.setOnClickListener(view -> abrirLista("Marketing"));
     }
 

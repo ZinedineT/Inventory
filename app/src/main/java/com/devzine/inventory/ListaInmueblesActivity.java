@@ -127,6 +127,34 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 generarReportePdf();
             }
         });
+        // Añadir después del botón de generación de PDF
+        FloatingActionButton fabImprimirDirecto = findViewById(R.id.fabImprimirDirecto);
+        fabImprimirDirecto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PrinterManager printerManager = new PrinterManager(ListaInmueblesActivity.this);
+                if (printerManager.isPrinterConfigured()) {
+                    printerManager.imprimirListaInmuebles(listaInmuebles, areaSeleccionada, new PrinterManager.PrinterConnectionCallback() {
+                        @Override
+                        public void onResult(boolean success, String message) {
+                            Toast.makeText(ListaInmueblesActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(ListaInmueblesActivity.this, "Impresora no configurada", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ListaInmueblesActivity.this, ConfiguracionImpresoraActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+        topAppBar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menu_configurar_impresora) {
+                Intent intent = new Intent(ListaInmueblesActivity.this, ConfiguracionImpresoraActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        });
     }
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -220,10 +248,10 @@ public class ListaInmueblesActivity extends AppCompatActivity {
                 table.setWidthPercentage(100);
                 // Agregar encabezados de columna
                 table.addCell("NOMBRE");
-                table.addCell("CÓDIGO");
+                table.addCell("CODIGO");
                 table.addCell("CANTIDAD");
                 table.addCell("PRECIO");
-                table.addCell("ÁREA");
+                table.addCell("AREA");
                 // Agregar datos de los inmuebles a la tabla
                 for (Inmueble inmueble : listaInmuebles) {
                     table.addCell(inmueble.getNombre());

@@ -90,6 +90,15 @@
                 android:fontFamily="@font/montserrat_medium"
                 android:text="@string/eliminar_item"
                 android:textColor="#FFFFFF" />
+            <!-- Añadir este botón después de los botones existentes -->
+            <Button
+                android:id="@+id/btnImprimir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Imprimir"
+                android:layout_marginTop="8dp"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
     </LinearLayout>

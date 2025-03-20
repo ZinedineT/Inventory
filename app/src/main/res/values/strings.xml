@@ -33,4 +33,5 @@
     <string name="precio_item">Precio</string>
     <string name="editar_item">Editar</string>
     <string name="eliminar_item">Eliminar</string>
+    <string name="imprimir_reporte">Imprimir reporte</string>
 </resources>

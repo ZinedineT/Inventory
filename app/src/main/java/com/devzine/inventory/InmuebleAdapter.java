@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
 import android.app.Activity;
+import android.widget.Toast;
 
 public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHolder> {
 
@@ -91,6 +92,23 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
             intent.putExtra("AREA", inmueble.getArea());
             ((Activity) context).startActivityForResult(intent, 2); // Usar un código de solicitud diferente (2)
         });
+        holder.btnImprimir.setOnClickListener(v -> {
+            Inmueble inmuebleParaImprimir = listaInmuebles.get(position);
+            PrinterManager printerManager = new PrinterManager(context);
+
+            if (printerManager.isPrinterConfigured()) {
+                printerManager.imprimirEtiqueta(inmuebleParaImprimir, new PrinterManager.PrinterConnectionCallback() {
+                    @Override
+                    public void onResult(boolean success, String message) {
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(context, "Impresora no configurada. Vaya a configuración.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, ConfiguracionImpresoraActivity.class);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -101,7 +119,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre,txtCodigo, txtPrecio, txtCantidad;
         ImageView imgInmueble;
-        Button btnEliminar, btnEditar;
+        Button btnEliminar, btnEditar, btnImprimir;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,6 +130,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.ViewHo
             imgInmueble = itemView.findViewById(R.id.imgInmueble);
             btnEliminar = itemView.findViewById(R.id.btnEliminar);
             btnEditar = itemView.findViewById(R.id.btnEditar);
+            btnImprimir = itemView.findViewById(R.id.btnImprimir);
         }
     }
     public void filter(String query) {
