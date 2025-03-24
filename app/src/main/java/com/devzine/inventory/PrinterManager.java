@@ -2,6 +2,8 @@ package com.devzine.inventory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
@@ -85,6 +87,7 @@ public class PrinterManager {
                     // Comandos ESC/POS
                     // Inicializar impresora
                     outputStream.write(new byte[]{0x1B, 0x40});
+                    imprimirLogo(outputStream);
 
                     // Centrar texto
                     outputStream.write(new byte[]{0x1B, 0x61, 0x01});
@@ -104,11 +107,11 @@ public class PrinterManager {
 
                     // Datos del inmueble
                     String datos = "--------------------------------\n";
-                    datos += "Nombre: " + inmueble.getNombre() + "\n";
-                    datos += "Codigo: " + inmueble.getCodigo() + "\n";
-                    datos += "Cantidad: " + inmueble.getCantidad() + "\n";
-                    datos += "Precio: S/ " + inmueble.getPrecio() + "\n";
-                    datos += "Area: " + inmueble.getArea() + "\n";
+                    datos += String.format("Nombre: %s\n", inmueble.getNombre());
+                    datos += String.format("Código: %s\n", inmueble.getCodigo());
+                    datos += String.format("Cantidad: %s\n", inmueble.getCantidad());
+                    datos += String.format("Precio: S/ %s\n", inmueble.getPrecio());
+                    datos += String.format("Área: %s\n", inmueble.getArea());
                     datos += "--------------------------------\n";
                     outputStream.write(datos.getBytes());
 
@@ -160,9 +163,8 @@ public class PrinterManager {
 
                     // Inicializar impresora
                     outputStream.write(new byte[]{0x1B, 0x40});
-
-                    // Centrar texto
                     outputStream.write(new byte[]{0x1B, 0x61, 0x01});
+                    imprimirLogo(outputStream);
 
                     // Texto en negrita
                     outputStream.write(new byte[]{0x1B, 0x45, 0x01});
@@ -175,24 +177,22 @@ public class PrinterManager {
                     // Quitar negrita
                     outputStream.write(new byte[]{0x1B, 0x45, 0x00});
 
-                    // Alinear a la izquierda
-                    outputStream.write(new byte[]{0x1B, 0x61, 0x00});
-
                     // Cabecera de la tabla
-                    String cabecera = "NOMBRE | CODIGO | CANT | PRECIO | AREA\n";
+                    String cabecera = String.format("%-13s %-8s %-5s %-8s %-10s%n",
+                            "NOMBRE", "CODIGO", "CANT", "PRECIO", "AREA");
                     cabecera += "--------------------------------\n";
                     outputStream.write(cabecera.getBytes());
 
                     // Datos de los inmuebles
                     for (Inmueble inmueble : inmuebles) {
-                        String linea = inmueble.getNombre() + " | ";
-                        linea += inmueble.getCodigo() + " | ";
-                        linea += inmueble.getCantidad() + " | ";
-                        linea += inmueble.getPrecio() + " | ";
-                        linea += inmueble.getArea() + "\n";
+                        String linea = String.format("%-13s %-8s %-5s %-8s %-10s%n",
+                                inmueble.getNombre(),
+                                inmueble.getCodigo(),
+                                inmueble.getCantidad(),
+                                inmueble.getPrecio(),
+                                inmueble.getArea());
                         outputStream.write(linea.getBytes());
                     }
-
                     // Pie de página
                     String piePagina = "--------------------------------\n";
                     piePagina += "Total: " + inmuebles.size() + " inmuebles\n";
@@ -228,7 +228,76 @@ public class PrinterManager {
             }
         }).start();
     }
+    private void imprimirLogo(OutputStream outputStream) throws IOException {
+        int logoResourceId = context.getResources().getIdentifier("logoetiqueta", "drawable", context.getPackageName());
+        if (logoResourceId == 0) return;
 
+        Bitmap logoBitmap = BitmapFactory.decodeResource(context.getResources(), logoResourceId);
+        logoBitmap = convertirImagenBlancoNegro(logoBitmap);
+
+        int width = logoBitmap.getWidth();
+        int height = logoBitmap.getHeight();
+        int maxWidth = 384; //
+
+        // Escalar la imagen si es más grande que el ancho máximo
+        if (width > maxWidth) {
+            double scaleFactor = (double) maxWidth / width;
+            width = maxWidth;
+            height = (int) (height * scaleFactor);
+            logoBitmap = Bitmap.createScaledBitmap(logoBitmap, width, height, false);
+        }
+
+        int widthBytes = (width + 7) / 8;
+
+        // Centrar imagen en la impresora
+        outputStream.write(new byte[]{0x1B, 0x61, 0x01});
+
+        // Enviar comando para impresión de gráficos
+        outputStream.write(new byte[]{0x1D, 0x76, 0x30, 0x00});
+        outputStream.write(new byte[]{(byte) (widthBytes & 0xff), (byte) ((widthBytes >> 8) & 0xff)});
+        outputStream.write(new byte[]{(byte) (height & 0xff), (byte) ((height >> 8) & 0xff)});
+
+        byte[] imageData = new byte[widthBytes * height];
+        int pos = 0;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x += 8) {
+                byte b = 0;
+                for (int i = 0; i < 8; i++) {
+                    int realX = x + i;
+                    if (realX < width) {
+                        int pixel = logoBitmap.getPixel(realX, y);
+                        int gray = (((pixel >> 16) & 0xff) + ((pixel >> 8) & 0xff) + (pixel & 0xff)) / 3;
+
+                        if (gray > 128) { // Si el pixel es claro, lo hacemos negro
+                            b |= (1 << (7 - i));
+                        }
+                    }
+                }
+                imageData[pos++] = b;
+            }
+        }
+        // Enviar datos de la imagen a la impresora
+        outputStream.write(imageData);
+        outputStream.write(new byte[]{0x0A, 0x0A});
+    }
+    private Bitmap convertirImagenBlancoNegro(Bitmap original) {
+        Bitmap newBitmap = Bitmap.createBitmap(original.getWidth(), original.getHeight(), Bitmap.Config.ARGB_8888);
+
+        for (int x = 0; x < original.getWidth(); x++) {
+            for (int y = 0; y < original.getHeight(); y++) {
+                int pixel = original.getPixel(x, y);
+                int gray = (((pixel >> 16) & 0xff) + ((pixel >> 8) & 0xff) + (pixel & 0xff)) / 3;
+
+                if (gray > 128) {
+                    newBitmap.setPixel(x, y, 0xFF000000); // Negro
+                } else {
+                    newBitmap.setPixel(x, y, 0xFFFFFFFF); // Blanco
+                }
+            }
+        }
+        return newBitmap;
+    }
     public interface PrinterConnectionCallback {
         void onResult(boolean success, String message);
     }
